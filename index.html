@@ -20,23 +20,27 @@
 </style>
 </head>
 <body>
-<div class="bar top"><div id="hint">📷 Halakan kamera ke kotak QR pada poster</div></div>
+<div class="bar top"><div id="hint">📷 Halakan kamera ke seluruh poster</div></div>
 <div class="bar bottom">
   <button class="pill" id="mode">Poster di meja</button>
   <a class="pill gold" href="meja.html">Letak di lantai</a>
 </div>
 
-<a-scene mindar-image="imageTargetSrc: targets.mind; filterMinCF: 0.0001; filterBeta: 0.001; uiScanning: no; uiLoading: yes"
+<script>
+  // Pusing perlahan (darjah sesaat), tidak bergantung pada animation component
+  AFRAME.registerComponent('spin',{schema:{speed:{default:20}},tick(t,dt){if(dt)this.el.object3D.rotation.y+=THREE.MathUtils.degToRad(this.data.speed)*dt/1000;}});
+</script>
+<a-scene mindar-image="imageTargetSrc: targets.mind?v=3; filterMinCF: 0.0001; filterBeta: 5; missTolerance: 10; warmupTolerance: 3; uiScanning: no; uiLoading: yes"
   color-space="sRGB" renderer="colorManagement: true; physicallyCorrectLights: true" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-  <a-assets><a-asset-item id="tin" src="produk.glb"></a-asset-item></a-assets>
+  <a-assets><a-asset-item id="tin" src="produk.glb?v=3"></a-asset-item></a-assets>
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
   <a-entity light="type: ambient; intensity: 1.2"></a-entity>
   <a-entity light="type: directional; intensity: 1.6" position="0.5 1 1"></a-entity>
   <a-entity id="target" mindar-image-target="targetIndex: 0">
-    <!-- 1 unit = lebar kotak QR. Mod dinding: tin berdiri di depan QR -->
-    <a-entity id="holder" position="0 -0.6 0.35">
-      <a-entity id="spin" animation="property: rotation; to: 0 360 0; loop: true; dur: 18000; easing: linear">
-        <a-gltf-model src="#tin" scale="7.5 7.5 7.5"></a-gltf-model>
+    <!-- 1 unit = lebar poster. QR di tengah (0.241, 0.025). Mod dinding: tin berdiri di depan QR -->
+    <a-entity id="holder" position="0.241 -0.2 0.04">
+      <a-entity spin="speed: 20">
+        <a-gltf-model src="#tin" scale="3 3 3"></a-gltf-model>
       </a-entity>
     </a-entity>
   </a-entity>
@@ -45,13 +49,13 @@
 <script>
   const hint=document.getElementById('hint'), target=document.getElementById('target'), holder=document.getElementById('holder'), btn=document.getElementById('mode');
   target.addEventListener('targetFound',()=>{hint.textContent='✅ Tin Kaffeine Rush!';hint.classList.add('found');});
-  target.addEventListener('targetLost',()=>{hint.textContent='📷 Halakan kamera ke kotak QR pada poster';hint.classList.remove('found');});
+  target.addEventListener('targetLost',()=>{hint.textContent='📷 Halakan kamera ke seluruh poster';hint.classList.remove('found');});
   // Dua mod: poster tegak (skrin/dinding) atau poster rata (atas meja)
   let flat=false;
   btn.addEventListener('click',()=>{
     flat=!flat;
-    if(flat){holder.setAttribute('rotation','90 0 0');holder.setAttribute('position','0 0.125 0');btn.textContent='Poster di dinding / skrin';}
-    else{holder.setAttribute('rotation','0 0 0');holder.setAttribute('position','0 -0.6 0.35');btn.textContent='Poster di meja';}
+    if(flat){holder.setAttribute('rotation','90 0 0');holder.setAttribute('position','0.241 0.025 0');btn.textContent='Poster di dinding / skrin';}
+    else{holder.setAttribute('rotation','0 0 0');holder.setAttribute('position','0.241 -0.2 0.04');btn.textContent='Poster di meja';}
   });
 </script>
 </body>
